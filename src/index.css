@@ -63,6 +63,8 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 body {
@@ -70,6 +72,8 @@ body {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
   color: var(--neutral-200);
   min-height: 100vh;
+  overflow-x: hidden;
+  width: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -93,6 +97,8 @@ body::before {
 #root {
   position: relative;
   z-index: 1;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* ============================================
@@ -101,6 +107,7 @@ body::before {
 
 .app-container {
   max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
   padding: 32px 24px;
 }
@@ -110,6 +117,9 @@ body::before {
    ============================================ */
 
 .app-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
   margin-bottom: 48px;
   animation: fadeInDown 0.6s ease-out;
@@ -165,6 +175,10 @@ body::before {
   grid-template-columns: 1fr 1fr;
   gap: 32px;
   align-items: start;
+}
+
+.main-layout > * {
+  min-width: 0;
 }
 
 @media (max-width: 1100px) {
@@ -258,6 +272,7 @@ body::before {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
+  min-width: 0;
 }
 
 .form-grid.cols-3 {
@@ -332,6 +347,7 @@ body::before {
 
 .line-items-section {
   margin-bottom: 24px;
+  min-width: 0;
 }
 
 .line-items-header {
@@ -341,8 +357,16 @@ body::before {
   margin-bottom: 14px;
 }
 
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .line-items-table {
   width: 100%;
+  min-width: 900px;
   border-collapse: collapse;
   margin-bottom: 12px;
 }
@@ -720,6 +744,7 @@ body::before {
 
 .invoice-table {
   width: 100%;
+  min-width: 650px;
   border-collapse: collapse;
   margin-bottom: 16px;
   font-size: 10px;
@@ -1012,17 +1037,59 @@ body::before {
    Responsive
    ============================================ */
 
+@media (max-width: 1100px) {
+  .preview-panel {
+    position: static;
+    top: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .app-container {
+    padding: 24px 16px;
+  }
+
+  .form-grid.cols-3 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 @media (max-width: 768px) {
   .app-container {
     padding: 16px 12px;
+  }
+
+  .app-header {
+    margin-bottom: 32px;
   }
 
   .app-header h1 {
     font-size: 1.8rem;
   }
 
+  .app-header p {
+    font-size: 0.9rem;
+    padding: 0 8px;
+  }
+
+  .glass-card-header {
+    padding: 16px;
+    flex-wrap: wrap;
+  }
+
+  .glass-card-header-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
+  }
+
   .glass-card-body {
     padding: 16px;
+  }
+
+  .form-grid,
+  .form-grid.cols-3 {
+    grid-template-columns: 1fr;
   }
 
   .invoice-preview {
@@ -1038,6 +1105,10 @@ body::before {
     text-align: left;
   }
 
+  .invoice-meta .tax-invoice-title {
+    font-size: 18px;
+  }
+
   .invoice-info-row {
     grid-template-columns: 1fr;
   }
@@ -1046,8 +1117,79 @@ body::before {
     grid-template-columns: 1fr;
   }
 
+  .invoice-declarations-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .invoice-signatory,
+  .invoice-signatory .signatory-line {
+    text-align: left;
+    margin-left: 0 !important;
+  }
+
   .actions-bar {
     flex-direction: column;
+  }
+
+  .toast {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header-badge {
+    font-size: 0.65rem;
+    padding: 5px 12px;
+    text-align: center;
+  }
+
+  .app-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .glass-card-header {
+    gap: 8px;
+    padding: 14px;
+  }
+
+  .glass-card-header h2 {
+    font-size: 1rem;
+  }
+
+  .glass-card-header p {
+    font-size: 0.72rem;
+  }
+
+  .glass-card-body {
+    padding: 12px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 12px 20px;
+    font-size: 0.88rem;
+  }
+
+  .invoice-company h1 {
+    font-size: 15px;
+  }
+
+  .invoice-meta .tax-invoice-title {
+    font-size: 16px;
+  }
+
+  .bank-details-box-body .bank-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .toast {
+    font-size: 0.8rem;
+    padding: 12px 16px;
   }
 }
 

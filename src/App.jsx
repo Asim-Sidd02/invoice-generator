@@ -285,82 +285,84 @@ export default function App() {
             </div>
             <div className="glass-card-body">
               <div className="line-items-section">
-                <table className="line-items-table">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Description</th>
-                      <th>HSN/SAC</th>
-                      <th>Qty</th>
-                      <th>Unit Price (₹)</th>
-                      <th>GST %</th>
-                      <th>CGST (₹)</th>
-                      <th>SGST (₹)</th>
-                      <th>Total (₹)</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((item, index) => (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td>
-                          <input
-                            value={item.description}
-                            onChange={e => setItemField(index, 'description', e.target.value)}
-                            placeholder="Item description"
-                          />
-                        </td>
-                        <td>
-                          <input
-                            value={item.hsnSac || ''}
-                            onChange={e => setItemField(index, 'hsnSac', e.target.value)}
-                            placeholder="HSN/SAC"
-                            style={{ width: 70 }}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            className="number-input"
-                            type="number"
-                            value={item.quantity}
-                            onChange={e => setItemField(index, 'quantity', parseFloat(e.target.value) || 0)}
-                            style={{ width: 55 }}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            className="number-input"
-                            type="number"
-                            value={item.unitPrice}
-                            onChange={e => setItemField(index, 'unitPrice', parseFloat(e.target.value) || 0)}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            className="number-input"
-                            type="number"
-                            value={item.gstPercent}
-                            onChange={e => setItemField(index, 'gstPercent', parseFloat(e.target.value) || 0)}
-                            style={{ width: 55 }}
-                          />
-                        </td>
-                        <td>
-                          <div className="computed-value">{formatIndianCurrency(item.cgstAmount)}</div>
-                        </td>
-                        <td>
-                          <div className="computed-value">{formatIndianCurrency(item.sgstAmount)}</div>
-                        </td>
-                        <td>
-                          <div className="computed-value">{formatIndianCurrency(item.total)}</div>
-                        </td>
-                        <td>
-                          <button className="btn-remove" onClick={() => removeItem(index)} title="Remove item">×</button>
-                        </td>
+                <div className="table-responsive">
+                  <table className="line-items-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Description</th>
+                        <th>HSN/SAC</th>
+                        <th>Qty</th>
+                        <th>Unit Price (₹)</th>
+                        <th>GST %</th>
+                        <th>CGST (₹)</th>
+                        <th>SGST (₹)</th>
+                        <th>Total (₹)</th>
+                        <th></th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {items.map((item, index) => (
+                        <tr key={index}>
+                          <td>{index + 1}</td>
+                          <td>
+                            <input
+                              value={item.description}
+                              onChange={e => setItemField(index, 'description', e.target.value)}
+                              placeholder="Item description"
+                            />
+                          </td>
+                          <td>
+                            <input
+                              value={item.hsnSac || ''}
+                              onChange={e => setItemField(index, 'hsnSac', e.target.value)}
+                              placeholder="HSN/SAC"
+                              style={{ width: 70 }}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              className="number-input"
+                              type="number"
+                              value={item.quantity}
+                              onChange={e => setItemField(index, 'quantity', parseFloat(e.target.value) || 0)}
+                              style={{ width: 55 }}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              className="number-input"
+                              type="number"
+                              value={item.unitPrice}
+                              onChange={e => setItemField(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              className="number-input"
+                              type="number"
+                              value={item.gstPercent}
+                              onChange={e => setItemField(index, 'gstPercent', parseFloat(e.target.value) || 0)}
+                              style={{ width: 55 }}
+                            />
+                          </td>
+                          <td>
+                            <div className="computed-value">{formatIndianCurrency(item.cgstAmount)}</div>
+                          </td>
+                          <td>
+                            <div className="computed-value">{formatIndianCurrency(item.sgstAmount)}</div>
+                          </td>
+                          <td>
+                            <div className="computed-value">{formatIndianCurrency(item.total)}</div>
+                          </td>
+                          <td>
+                            <button className="btn-remove" onClick={() => removeItem(index)} title="Remove item">×</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 <button className="btn-add-row" onClick={addItem}>+ Add line item</button>
               </div>
 
@@ -490,60 +492,62 @@ export default function App() {
               </div>
 
               <div className="invoice-price-title">Bifurcated Price Breakdown</div>
-              <table className="invoice-table">
-                <thead>
-                  {isTaxInvoice ? (
-                    <tr>
-                      <th>#</th>
-                      <th>Item</th>
-                      <th>HSN/SAC</th>
-                      <th className="text-right">Qty</th>
-                      <th className="text-right">Price (₹)</th>
-                      <th className="text-right">CGST</th>
-                      <th className="text-right">SGST</th>
-                      <th className="text-right">Total (₹)</th>
-                    </tr>
-                  ) : (
-                    <tr>
-                      <th>#</th>
-                      <th>Description of Goods / Services</th>
-                      <th className="text-right">Base Value (₹)</th>
-                      <th className="text-right">GST %</th>
-                      <th className="text-right">GST (₹)</th>
-                      <th className="text-right">Total (₹)</th>
-                    </tr>
-                  )}
-                </thead>
-                <tbody>
-                  {isTaxInvoice ? computed.map((item, i) => (
-                    <tr key={i}>
-                      <td>{i + 1}</td>
-                      <td><span className="item-name">{item.description || '—'}</span></td>
-                      <td>{item.hsnSac || '—'}</td>
-                      <td className="text-right">{item.quantity}</td>
-                      <td className="text-right">{formatIndianCurrency(item.unitPrice)}</td>
-                      <td className="text-right">
-                        {formatIndianCurrency(item.cgstAmount)}
-                        <div style={{ fontSize: '0.75em', opacity: 0.7 }}>{item.cgstPercent}%</div>
-                      </td>
-                      <td className="text-right">
-                        {formatIndianCurrency(item.sgstAmount)}
-                        <div style={{ fontSize: '0.75em', opacity: 0.7 }}>{item.sgstPercent}%</div>
-                      </td>
-                      <td className="text-right">{formatIndianCurrency(item.total)}</td>
-                    </tr>
-                  )) : computed.map((item, i) => (
-                    <tr key={i}>
-                      <td>{i + 1}</td>
-                      <td><span className="item-name">{item.description || '—'}</span></td>
-                      <td className="text-right">{formatIndianCurrency(item.baseValue)}</td>
-                      <td className="text-right">{item.gstPercent}%</td>
-                      <td className="text-right">{formatIndianCurrency(item.gstAmount)}</td>
-                      <td className="text-right">{formatIndianCurrency(item.total)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="table-responsive">
+                <table className="invoice-table">
+                  <thead>
+                    {isTaxInvoice ? (
+                      <tr>
+                        <th>#</th>
+                        <th>Item</th>
+                        <th>HSN/SAC</th>
+                        <th className="text-right">Qty</th>
+                        <th className="text-right">Price (₹)</th>
+                        <th className="text-right">CGST</th>
+                        <th className="text-right">SGST</th>
+                        <th className="text-right">Total (₹)</th>
+                      </tr>
+                    ) : (
+                      <tr>
+                        <th>#</th>
+                        <th>Description of Goods / Services</th>
+                        <th className="text-right">Base Value (₹)</th>
+                        <th className="text-right">GST %</th>
+                        <th className="text-right">GST (₹)</th>
+                        <th className="text-right">Total (₹)</th>
+                      </tr>
+                    )}
+                  </thead>
+                  <tbody>
+                    {isTaxInvoice ? computed.map((item, i) => (
+                      <tr key={i}>
+                        <td>{i + 1}</td>
+                        <td><span className="item-name">{item.description || '—'}</span></td>
+                        <td>{item.hsnSac || '—'}</td>
+                        <td className="text-right">{item.quantity}</td>
+                        <td className="text-right">{formatIndianCurrency(item.unitPrice)}</td>
+                        <td className="text-right">
+                          {formatIndianCurrency(item.cgstAmount)}
+                          <div style={{ fontSize: '0.75em', opacity: 0.7 }}>{item.cgstPercent}%</div>
+                        </td>
+                        <td className="text-right">
+                          {formatIndianCurrency(item.sgstAmount)}
+                          <div style={{ fontSize: '0.75em', opacity: 0.7 }}>{item.sgstPercent}%</div>
+                        </td>
+                        <td className="text-right">{formatIndianCurrency(item.total)}</td>
+                      </tr>
+                    )) : computed.map((item, i) => (
+                      <tr key={i}>
+                        <td>{i + 1}</td>
+                        <td><span className="item-name">{item.description || '—'}</span></td>
+                        <td className="text-right">{formatIndianCurrency(item.baseValue)}</td>
+                        <td className="text-right">{item.gstPercent}%</td>
+                        <td className="text-right">{formatIndianCurrency(item.gstAmount)}</td>
+                        <td className="text-right">{formatIndianCurrency(item.total)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
               <div className="invoice-bottom">
                 <div className="bank-details-box">
