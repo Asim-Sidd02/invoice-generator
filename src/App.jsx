@@ -2,31 +2,42 @@ import { useState } from 'react'
 import { generateInvoicePDF, formatIndianCurrency } from './generatePDF.js'
 
 const defaultItems = [
-  { description: 'UTL Solar PV Panels (3 kW Capacity)', baseValue: 120000, gstPercent: 5 },
-  { description: 'UTL On-Grid Solar Inverter (3 kW)', baseValue: 46000, gstPercent: 5 },
-  { description: 'ACDB, DCDB & Mounting Structure', baseValue: 16000, gstPercent: 18 },
-  { description: 'Solar Installation & Commissioning Charges', baseValue: 48152.54, gstPercent: 18 },
+  { description: 'UTL Solar PV Panels (3 kW Capacity)', hsnSac: '8541', quantity: 1, unitPrice: 120000, gstPercent: 5 },
+  { description: 'UTL On-Grid Solar Inverter (3 kW)', hsnSac: '8504', quantity: 1, unitPrice: 46000, gstPercent: 5 },
+  { description: 'ACDB, DCDB & Mounting Structure', hsnSac: '8537', quantity: 1, unitPrice: 16000, gstPercent: 18 },
+  { description: 'Solar Installation & Commissioning Charges', hsnSac: '9954', quantity: 1, unitPrice: 48152.54, gstPercent: 18 },
 ]
 
 function computeItem(item) {
-  const base = parseFloat(item.baseValue) || 0
+  const quantity = parseFloat(item.quantity) || 0
+  const unitPrice = parseFloat(item.unitPrice) || 0
+  const baseValue = parseFloat((quantity * unitPrice).toFixed(2))
   const pct = parseFloat(item.gstPercent) || 0
-  const gstAmount = parseFloat((base * pct / 100).toFixed(2))
-  const total = parseFloat((base + gstAmount).toFixed(2))
-  return { ...item, baseValue: base, gstAmount, total }
+  const cgstPercent = parseFloat((pct / 2).toFixed(2))
+  const sgstPercent = parseFloat((pct / 2).toFixed(2))
+  const cgstAmount = parseFloat((baseValue * cgstPercent / 100).toFixed(2))
+  const sgstAmount = parseFloat((baseValue * sgstPercent / 100).toFixed(2))
+  const gstAmount = parseFloat((cgstAmount + sgstAmount).toFixed(2))
+  const total = parseFloat((baseValue + gstAmount).toFixed(2))
+  return { ...item, quantity, unitPrice, baseValue, cgstPercent, sgstPercent, cgstAmount, sgstAmount, gstAmount, total }
 }
 
-function buildInvoiceData(form, items) {
+function buildInvoiceData(form, items, invoiceType) {
   const computed = items.map(computeItem)
   const totalTaxableValue = computed.reduce((s, i) => s + i.baseValue, 0)
-  const totalGstAmount = computed.reduce((s, i) => s + i.gstAmount, 0)
+  const totalCgstAmount = computed.reduce((s, i) => s + i.cgstAmount, 0)
+  const totalSgstAmount = computed.reduce((s, i) => s + i.sgstAmount, 0)
+  const totalGstAmount = totalCgstAmount + totalSgstAmount
   const grandTotal = parseFloat((totalTaxableValue + totalGstAmount).toFixed(2))
   return {
     ...form,
     items: computed,
     totalTaxableValue,
+    totalCgstAmount,
+    totalSgstAmount,
     totalGstAmount,
     grandTotal,
+    invoiceType,
     declarations: form.declarations
       .split('\n')
       .map(l => l.trim())
@@ -56,8 +67,11 @@ export default function App() {
   })
 
   const [items, setItems] = useState(defaultItems.map(computeItem))
+  const [invoiceType, setInvoiceType] = useState('quotation')
   const [generating, setGenerating] = useState(false)
   const [toast, setToast] = useState(null)
+
+  const isTaxInvoice = invoiceType === 'tax_invoice'
 
   function showToast(message, type = 'success') {
     setToast({ message, type })
@@ -77,7 +91,7 @@ export default function App() {
   }
 
   function addItem() {
-    setItems(prev => [...prev, computeItem({ description: '', baseValue: 0, gstPercent: 18 })])
+    setItems(prev => [...prev, computeItem({ description: '', hsnSac: '', quantity: 1, unitPrice: 0, gstPercent: 18 })])
   }
 
   function removeItem(index) {
@@ -110,9 +124,9 @@ export default function App() {
   function handleDownload() {
     setGenerating(true)
     try {
-      const data = buildInvoiceData(form, items)
+      const data = buildInvoiceData(form, items, invoiceType)
       const doc = generateInvoicePDF(data)
-      doc.save(`invoice-${form.invoiceNo.replace(/\//g, '-')}.pdf`)
+      doc.save(`${invoiceType === 'tax_invoice' ? 'tax-invoice' : 'quotation'}-${form.invoiceNo.replace(/\//g, '-')}.pdf`)
       showToast('Invoice downloaded successfully!')
     } catch (err) {
       console.error(err)
@@ -124,7 +138,9 @@ export default function App() {
 
   const computed = items.map(computeItem)
   const totalTaxable = computed.reduce((s, i) => s + i.baseValue, 0)
-  const totalGst = computed.reduce((s, i) => s + i.gstAmount, 0)
+  const totalCgst = computed.reduce((s, i) => s + i.cgstAmount, 0)
+  const totalSgst = computed.reduce((s, i) => s + i.sgstAmount, 0)
+  const totalGst = totalCgst + totalSgst
   const grandTotal = totalTaxable + totalGst
 
   return (
@@ -180,6 +196,27 @@ export default function App() {
             </div>
             <div className="glass-card-body">
               <div className="form-grid">
+                <div className="form-group full-width">
+                  <label>Document Type</label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      type="button"
+                      onClick={() => setInvoiceType('quotation')}
+                      className={invoiceType === 'quotation' ? 'btn-primary' : 'btn-secondary'}
+                      style={{ flex: 1 }}
+                    >
+                      Quotation
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setInvoiceType('tax_invoice')}
+                      className={invoiceType === 'tax_invoice' ? 'btn-primary' : 'btn-secondary'}
+                      style={{ flex: 1 }}
+                    >
+                      Tax Invoice
+                    </button>
+                  </div>
+                </div>
                 <div className="form-group">
                   <label>Invoice Number</label>
                   <input value={form.invoiceNo} onChange={e => setField('invoiceNo', e.target.value)} placeholder="INV/001" />
@@ -243,7 +280,7 @@ export default function App() {
               <div className="glass-card-header-icon">📦</div>
               <div>
                 <h2>Line Items</h2>
-                <p>Goods and services with pricing</p>
+                <p>Goods and services with pricing{isTaxInvoice ? ' (HSN/SAC, Qty, CGST + SGST)' : ''}</p>
               </div>
             </div>
             <div className="glass-card-body">
@@ -253,9 +290,12 @@ export default function App() {
                     <tr>
                       <th>#</th>
                       <th>Description</th>
-                      <th>Base Value (₹)</th>
+                      <th>HSN/SAC</th>
+                      <th>Qty</th>
+                      <th>Unit Price (₹)</th>
                       <th>GST %</th>
-                      <th>GST (₹)</th>
+                      <th>CGST (₹)</th>
+                      <th>SGST (₹)</th>
                       <th>Total (₹)</th>
                       <th></th>
                     </tr>
@@ -273,10 +313,27 @@ export default function App() {
                         </td>
                         <td>
                           <input
+                            value={item.hsnSac || ''}
+                            onChange={e => setItemField(index, 'hsnSac', e.target.value)}
+                            placeholder="HSN/SAC"
+                            style={{ width: 70 }}
+                          />
+                        </td>
+                        <td>
+                          <input
                             className="number-input"
                             type="number"
-                            value={item.baseValue}
-                            onChange={e => setItemField(index, 'baseValue', parseFloat(e.target.value) || 0)}
+                            value={item.quantity}
+                            onChange={e => setItemField(index, 'quantity', parseFloat(e.target.value) || 0)}
+                            style={{ width: 55 }}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            className="number-input"
+                            type="number"
+                            value={item.unitPrice}
+                            onChange={e => setItemField(index, 'unitPrice', parseFloat(e.target.value) || 0)}
                           />
                         </td>
                         <td>
@@ -285,10 +342,14 @@ export default function App() {
                             type="number"
                             value={item.gstPercent}
                             onChange={e => setItemField(index, 'gstPercent', parseFloat(e.target.value) || 0)}
+                            style={{ width: 55 }}
                           />
                         </td>
                         <td>
-                          <div className="computed-value">{formatIndianCurrency(item.gstAmount)}</div>
+                          <div className="computed-value">{formatIndianCurrency(item.cgstAmount)}</div>
+                        </td>
+                        <td>
+                          <div className="computed-value">{formatIndianCurrency(item.sgstAmount)}</div>
                         </td>
                         <td>
                           <div className="computed-value">{formatIndianCurrency(item.total)}</div>
@@ -309,8 +370,12 @@ export default function App() {
                   <span className="value">₹{formatIndianCurrency(totalTaxable)}</span>
                 </div>
                 <div className="summary-row">
-                  <span className="label">Total GST Amount</span>
-                  <span className="value">₹{formatIndianCurrency(totalGst)}</span>
+                  <span className="label">Total CGST</span>
+                  <span className="value">₹{formatIndianCurrency(totalCgst)}</span>
+                </div>
+                <div className="summary-row">
+                  <span className="label">Total SGST</span>
+                  <span className="value">₹{formatIndianCurrency(totalSgst)}</span>
                 </div>
                 <div className="summary-row total">
                   <span className="label">Grand Total (Net Cost)</span>
@@ -399,7 +464,7 @@ export default function App() {
                   <p>{form.companyTagline}</p>
                 </div>
                 <div className="invoice-meta">
-                  <div className="tax-invoice-title">TAX INVOICE</div>
+                  <div className="tax-invoice-title">{invoiceType === 'tax_invoice' ? 'TAX INVOICE' : 'QUOTATION'}</div>
                   <p><strong>Date:</strong> {form.invoiceDate}</p>
                   <p><strong>Invoice No:</strong> {form.invoiceNo}</p>
                 </div>
@@ -427,17 +492,47 @@ export default function App() {
               <div className="invoice-price-title">Bifurcated Price Breakdown</div>
               <table className="invoice-table">
                 <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Description of Goods / Services</th>
-                    <th className="text-right">Base Value (₹)</th>
-                    <th className="text-right">GST %</th>
-                    <th className="text-right">GST (₹)</th>
-                    <th className="text-right">Total (₹)</th>
-                  </tr>
+                  {isTaxInvoice ? (
+                    <tr>
+                      <th>#</th>
+                      <th>Item</th>
+                      <th>HSN/SAC</th>
+                      <th className="text-right">Qty</th>
+                      <th className="text-right">Price (₹)</th>
+                      <th className="text-right">CGST</th>
+                      <th className="text-right">SGST</th>
+                      <th className="text-right">Total (₹)</th>
+                    </tr>
+                  ) : (
+                    <tr>
+                      <th>#</th>
+                      <th>Description of Goods / Services</th>
+                      <th className="text-right">Base Value (₹)</th>
+                      <th className="text-right">GST %</th>
+                      <th className="text-right">GST (₹)</th>
+                      <th className="text-right">Total (₹)</th>
+                    </tr>
+                  )}
                 </thead>
                 <tbody>
-                  {computed.map((item, i) => (
+                  {isTaxInvoice ? computed.map((item, i) => (
+                    <tr key={i}>
+                      <td>{i + 1}</td>
+                      <td><span className="item-name">{item.description || '—'}</span></td>
+                      <td>{item.hsnSac || '—'}</td>
+                      <td className="text-right">{item.quantity}</td>
+                      <td className="text-right">{formatIndianCurrency(item.unitPrice)}</td>
+                      <td className="text-right">
+                        {formatIndianCurrency(item.cgstAmount)}
+                        <div style={{ fontSize: '0.75em', opacity: 0.7 }}>{item.cgstPercent}%</div>
+                      </td>
+                      <td className="text-right">
+                        {formatIndianCurrency(item.sgstAmount)}
+                        <div style={{ fontSize: '0.75em', opacity: 0.7 }}>{item.sgstPercent}%</div>
+                      </td>
+                      <td className="text-right">{formatIndianCurrency(item.total)}</td>
+                    </tr>
+                  )) : computed.map((item, i) => (
                     <tr key={i}>
                       <td>{i + 1}</td>
                       <td><span className="item-name">{item.description || '—'}</span></td>
@@ -474,10 +569,23 @@ export default function App() {
                         <td className="totals-label">Total Taxable Value:</td>
                         <td className="totals-value">₹{formatIndianCurrency(totalTaxable)}</td>
                       </tr>
-                      <tr>
-                        <td className="totals-label">Total GST Amount:</td>
-                        <td className="totals-value">₹{formatIndianCurrency(totalGst)}</td>
-                      </tr>
+                      {isTaxInvoice ? (
+                        <>
+                          <tr>
+                            <td className="totals-label">Total CGST:</td>
+                            <td className="totals-value">₹{formatIndianCurrency(totalCgst)}</td>
+                          </tr>
+                          <tr>
+                            <td className="totals-label">Total SGST:</td>
+                            <td className="totals-value">₹{formatIndianCurrency(totalSgst)}</td>
+                          </tr>
+                        </>
+                      ) : (
+                        <tr>
+                          <td className="totals-label">Total GST Amount:</td>
+                          <td className="totals-value">₹{formatIndianCurrency(totalGst)}</td>
+                        </tr>
+                      )}
                       <tr className="grand-total">
                         <td>Grand Total (Net Cost):</td>
                         <td style={{ textAlign: 'right' }}>₹{formatIndianCurrency(grandTotal)}</td>
@@ -493,9 +601,14 @@ export default function App() {
                   <p key={i}>{line}</p>
                 ))}
                 <div className="invoice-declarations-bottom">
-                  <div />
+                  <div className="signatory-line" style={{ marginTop: 36, borderTop: '1px solid #999', width: 140, textAlign: 'center', paddingTop: 4 }}>
+                    <p style={{ margin: 0 }}>Proprietor</p>
+                  </div>
                   <div className="invoice-signatory">
                     <p className="for-text">For {form.companyName}</p>
+                    <div className="signatory-line" style={{ marginTop: 36, borderTop: '1px solid #999', width: 140, marginLeft: 'auto', textAlign: 'center', paddingTop: 4 }}>
+                      <p style={{ margin: 0 }}>Authorized Signature</p>
+                    </div>
                   </div>
                 </div>
               </div>
