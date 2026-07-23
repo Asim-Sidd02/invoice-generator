@@ -97,6 +97,17 @@ export function generateInvoicePDF(data) {
 
   y += 11;
 
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9.5);
+  doc.setTextColor(66, 84, 102);
+  const addressLines = (data.companyAddress || '').split(',').map(part => part.trim()).filter(Boolean);
+  addressLines.forEach((line) => {
+    doc.text(line, margin, y);
+    y += 4;
+  });
+
+  y += 1.5;
+
   // Company details & Invoice details
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
@@ -110,9 +121,6 @@ export function generateInvoicePDF(data) {
   doc.text(`Mobile: ${data.companyMobile || ''}`, margin, y);
   const invoiceNoText = `Invoice No: ${data.invoiceNo || ''}`;
   doc.text(invoiceNoText, pageWidth - margin, y, { align: 'right' });
-
-  y += 4;
-  doc.text(data.companyAddress || '', margin, y);
 
   y += 4;
   doc.text(data.companyTagline || 'Authorized Solar Solutions', margin, y);

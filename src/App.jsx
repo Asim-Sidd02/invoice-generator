@@ -50,7 +50,7 @@ export default function App() {
     companyName: 'RAM RHEEM MOBILE WALE',
     gstin: '09AIHPA5514A3ZU',
     companyMobile: '+91 9839487052',
-    companyAddress: 'Plaza Market, Maharajganj -273303',
+    companyAddress: 'Plaza Market College Road, Maharajganj -273303',
     companyTagline: 'Authorized Solar Solutions',
     invoiceNo: 'RRMW/SOL/26-27/042',
     invoiceDate: 'June 27, 2026',
@@ -105,7 +105,7 @@ export default function App() {
       companyName: 'RAM RHEEM MOBILE WALE',
       gstin: '09AIHPA5514A3ZU',
       companyMobile: '+91 9839487052',
-      companyAddress: 'Plaza Market, Maharajganj -273303',
+      companyAddress: 'Plaza Market College Road, Maharajganj -273303',
       companyTagline: 'Authorized Solar Solutions',
       invoiceNo: 'RRMW/SOL/26-27/042',
       invoiceDate: 'June 27, 2026',
@@ -473,9 +473,11 @@ export default function App() {
               <div className="invoice-header">
                 <div className="invoice-company">
                   <h1>{form.companyName || 'Company Name'}</h1>
+                  {form.companyAddress.split(',').map(part => part.trim()).filter(Boolean).map((line, i) => (
+                    <p className="invoice-company-address" key={i}>{line}</p>
+                  ))}
                   <p>GSTIN: {form.gstin}</p>
                   <p>Mobile: {form.companyMobile}</p>
-                  <p>{form.companyAddress}</p>
                   <p>{form.companyTagline}</p>
                 </div>
                 <div className="invoice-meta">

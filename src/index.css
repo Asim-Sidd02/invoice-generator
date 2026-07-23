@@ -672,6 +672,18 @@ body::before {
   margin: 1px 0;
 }
 
+.invoice-company-address {
+  font-size: 12px !important;
+  font-weight: 700;
+  color: #33475b !important;
+  margin: 1px 0 !important;
+  letter-spacing: 0.2px;
+}
+
+.invoice-company-address:last-of-type {
+  margin-bottom: 8px !important;
+}
+
 .invoice-meta {
   text-align: right;
 }
