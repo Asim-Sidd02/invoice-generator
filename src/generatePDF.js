@@ -112,6 +112,9 @@ export function generateInvoicePDF(data) {
   doc.text(invoiceNoText, pageWidth - margin, y, { align: 'right' });
 
   y += 4;
+  doc.text(data.companyAddress || '', margin, y);
+
+  y += 4;
   doc.text(data.companyTagline || 'Authorized Solar Solutions', margin, y);
 
   y += 5;
@@ -138,9 +141,10 @@ export function generateInvoicePDF(data) {
 
   // Body
   const custBodyY = y + 6;
+  const custBoxHeight = 24;
   doc.setDrawColor(...borderGray);
   doc.setLineWidth(0.3);
-  doc.rect(boxLeft, custBodyY, boxWidth, 19);
+  doc.rect(boxLeft, custBodyY, boxWidth, custBoxHeight);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
@@ -155,17 +159,24 @@ export function generateInvoicePDF(data) {
 
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...textDark);
-  doc.text('Mobile No: ', boxLeft + 6, custBodyY + 10.5);
+  doc.text('Mobile No: ', boxLeft + 6, custBodyY + 10);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...textMedium);
-  doc.text(data.customerMobile || '', boxLeft + 6 + doc.getTextWidth('Mobile No: '), custBodyY + 10.5);
+  doc.text(data.customerMobile || '', boxLeft + 6 + doc.getTextWidth('Mobile No: '), custBodyY + 10);
 
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...textDark);
-  doc.text('System: ', boxLeft + 6, custBodyY + 16);
+  doc.text('Address: ', boxLeft + 6, custBodyY + 15);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...textMedium);
-  doc.text(data.systemType || '', boxLeft + 6 + doc.getTextWidth('System: '), custBodyY + 16);
+  doc.text(data.customerAddress || '', boxLeft + 6 + doc.getTextWidth('Address: '), custBodyY + 15);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...textDark);
+  doc.text('System: ', boxLeft + 6, custBodyY + 20);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...textMedium);
+  doc.text(data.systemType || '', boxLeft + 6 + doc.getTextWidth('System: '), custBodyY + 20);
 
   // --- System Information Box ---
   doc.setFillColor(...darkBlue);
@@ -177,7 +188,7 @@ export function generateInvoicePDF(data) {
 
   const sysBodyY = y + 6;
   doc.setDrawColor(...borderGray);
-  doc.rect(boxRight, sysBodyY, boxWidth, 19);
+  doc.rect(boxRight, sysBodyY, boxWidth, custBoxHeight);
 
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...textDark);
@@ -200,7 +211,7 @@ export function generateInvoicePDF(data) {
   doc.setTextColor(...textMedium);
   doc.text(data.scope || '', boxRight + 6 + doc.getTextWidth('Scope: '), sysBodyY + 16);
 
-  y = sysBodyY + 19 + 6;
+  y = sysBodyY + custBoxHeight + 6;
 
   // ========== BIFURCATED PRICE BREAKDOWN ==========
   doc.setFont('helvetica', 'bold');

@@ -50,11 +50,13 @@ export default function App() {
     companyName: 'RAM RHEEM MOBILE WALE',
     gstin: '09AIHPA5514A3ZU',
     companyMobile: '+91 9839487052',
+    companyAddress: 'Plaza Market, Maharajganj -273303',
     companyTagline: 'Authorized Solar Solutions',
     invoiceNo: 'RRMW/SOL/26-27/042',
     invoiceDate: 'June 27, 2026',
     customerName: 'Rakesh Kumar Srivastava',
     customerMobile: '9793481222',
+    customerAddress: 'Plaza Market, Maharajganj -273303',
     systemType: '3 kW On-Grid Solar System',
     totalSetBrand: 'UTL Total Set',
     capacity: '3 kW On-Grid',
@@ -103,11 +105,13 @@ export default function App() {
       companyName: 'RAM RHEEM MOBILE WALE',
       gstin: '09AIHPA5514A3ZU',
       companyMobile: '+91 9839487052',
+      companyAddress: 'Plaza Market, Maharajganj -273303',
       companyTagline: 'Authorized Solar Solutions',
       invoiceNo: 'RRMW/SOL/26-27/042',
       invoiceDate: 'June 27, 2026',
       customerName: 'Rakesh Kumar Srivastava',
       customerMobile: '9793481222',
+      customerAddress: 'Plaza Market, Maharajganj -273303',
       systemType: '3 kW On-Grid Solar System',
       totalSetBrand: 'UTL Total Set',
       capacity: '3 kW On-Grid',
@@ -179,6 +183,10 @@ export default function App() {
                   <input value={form.companyMobile} onChange={e => setField('companyMobile', e.target.value)} placeholder="+91 XXXXXXXXXX" />
                 </div>
                 <div className="form-group full-width">
+                  <label>Address</label>
+                  <input value={form.companyAddress} onChange={e => setField('companyAddress', e.target.value)} placeholder="Address" />
+                </div>
+                <div className="form-group full-width">
                   <label>Tagline / Authorized Text</label>
                   <input value={form.companyTagline} onChange={e => setField('companyTagline', e.target.value)} placeholder="e.g. Authorized Solar Solutions" />
                 </div>
@@ -248,6 +256,10 @@ export default function App() {
                   <div className="form-group">
                     <label>Mobile Number</label>
                     <input value={form.customerMobile} onChange={e => setField('customerMobile', e.target.value)} placeholder="XXXXXXXXXX" />
+                  </div>
+                  <div className="form-group full-width">
+                    <label>Address</label>
+                    <input value={form.customerAddress} onChange={e => setField('customerAddress', e.target.value)} placeholder="Address" />
                   </div>
                   <div className="form-group full-width">
                     <label>System / Product</label>
@@ -463,6 +475,7 @@ export default function App() {
                   <h1>{form.companyName || 'Company Name'}</h1>
                   <p>GSTIN: {form.gstin}</p>
                   <p>Mobile: {form.companyMobile}</p>
+                  <p>{form.companyAddress}</p>
                   <p>{form.companyTagline}</p>
                 </div>
                 <div className="invoice-meta">
@@ -478,6 +491,7 @@ export default function App() {
                   <div className="invoice-info-box-body">
                     <p><strong>Customer Name:</strong> {form.customerName}</p>
                     <p><strong>Mobile No:</strong> {form.customerMobile}</p>
+                    <p><strong>Address:</strong> {form.customerAddress}</p>
                     <p><strong>System:</strong> {form.systemType}</p>
                   </div>
                 </div>
